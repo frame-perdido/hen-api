@@ -5,7 +5,7 @@ from typing import Optional, List
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "hentaila.db"
+DB_PATH = Path(__file__).parent / "hen.db"
 
 app = FastAPI(
     title="HentaiLa API",
