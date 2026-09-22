@@ -5,7 +5,7 @@ from typing import Optional, List
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "hen.db"
+DB_PATH = Path(__file__).parent / "henn.db"
 
 app = FastAPI(
     title="HentaiLa API",
@@ -37,6 +37,7 @@ class AnimeResumen(BaseModel):
     tipo: Optional[str]
     año: Optional[int]
     generos: List[str]
+    portada: Optional[str] = None
 
 class AnimeDetalle(BaseModel):
     slug: str
@@ -45,10 +46,15 @@ class AnimeDetalle(BaseModel):
     año: Optional[int]
     generos: List[str]
     sinopsis: Optional[str]
+    portada: Optional[str] = None
     url: str
     episodios: List[Episodio]
 
 # ============ HELPERS ============
+def tiene_columna(row, nombre):
+    """Comprueba si el row de sqlite3 tiene una columna concreta."""
+    return nombre in row.keys()
+
 def row_a_anime_resumen(row):
     return {
         "slug": row["slug"],
@@ -56,6 +62,7 @@ def row_a_anime_resumen(row):
         "tipo": row["tipo"],
         "año": row["año"],
         "generos": [g.strip() for g in (row["generos"] or "").split(",") if g.strip()],
+        "portada": row["portada"] if tiene_columna(row, "portada") else None,
     }
 
 def row_a_episodio(row):
@@ -180,6 +187,7 @@ def obtener_anime(slug: str):
         "año": anime["año"],
         "generos": [g.strip() for g in (anime["generos"] or "").split(",") if g.strip()],
         "sinopsis": anime["sinopsis"],
+        "portada": anime["portada"] if tiene_columna(anime, "portada") else None,
         "url": anime["url"],
         "episodios": [row_a_episodio(e) for e in eps]
     }
